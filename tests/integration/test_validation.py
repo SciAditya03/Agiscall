@@ -5,7 +5,14 @@ import pytest
 from app import validation as v
 
 
-@pytest.mark.parametrize("raw", ["pol 3001", "POL3001", " pol-3001 ", "POL - 3001", "pol_3001"])
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "pol 3001", "POL3001", " pol-3001 ", "POL - 3001", "pol_3001",
+        # speech-to-text often spaces out digits or letters, or uses a dash lookalike
+        "pol 3 0 0 1", "POL 30 01", "p o l 3001", "POL–3001",
+    ],
+)
 def test_normalize_id_handles_spoken_forms(raw):
     assert v.normalize_id(raw) == "POL-3001"
 

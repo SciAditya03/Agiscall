@@ -7,19 +7,19 @@ from decimal import Decimal
 
 IFSC_PATTERN = re.compile(r"[A-Z]{4}0[A-Z0-9]{6}")
 ACCOUNT_PATTERN = re.compile(r"[0-9]{9,18}")
-_ID_PATTERN = re.compile(r"([A-Z]+)[\s_-]*([0-9]+)")
+_ID_PATTERN = re.compile(r"([A-Z]+)([0-9]+)")
+_ID_SEPARATORS = re.compile(r"[\s_.\-–—]+")
 
 
 def normalize_id(value: str) -> str:
-    """'pol 3001', 'POL3001', ' pol-3001 ' -> 'POL-3001'."""
-    compact = value.strip().upper()
+    """'pol 3001', 'POL3001', 'pol 3 0 0 1', ' pol-3001 ' -> 'POL-3001'."""
+    compact = _ID_SEPARATORS.sub("", value).upper()
+    if not compact:
+        raise ValueError("This field cannot be empty")
     match = _ID_PATTERN.fullmatch(compact)
     if match:
         return f"{match.group(1)}-{match.group(2)}"
-    cleaned = "".join(compact.split())
-    if not cleaned:
-        raise ValueError("This field cannot be empty")
-    return cleaned
+    return compact
 
 
 def clean_lookup_id(value: str) -> str:

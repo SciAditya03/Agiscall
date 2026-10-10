@@ -37,3 +37,16 @@ def test_settings_defaults(monkeypatch):
 
     assert settings.verification_ttl_seconds == 600
     assert settings.database_url.endswith("@localhost:5433/aegiscall")
+
+
+def test_token_secret_defaults_to_a_random_value(monkeypatch):
+    # A committed default secret would let anyone who reads the repo forge verification tokens.
+    monkeypatch.delenv("TOKEN_SECRET", raising=False)
+    first, second = Settings(_env_file=None), Settings(_env_file=None)
+    assert len(first.token_secret) >= 32
+    assert first.token_secret != second.token_secret
+
+
+def test_blank_token_secret_is_treated_as_unset(monkeypatch):
+    monkeypatch.setenv("TOKEN_SECRET", "  ")
+    assert len(Settings(_env_file=None).token_secret) >= 32

@@ -1,13 +1,16 @@
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
 
 import pytest
 from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy import select
+from sqlalchemy.orm import sessionmaker
 
 from app.config import get_settings
 from app.errors import DomainError
 from app.models import Operation
-from app.services.verification import SALT, issue_token, read_token
+from app.schemas import VerificationRequest
+from app.services.verification import SALT, issue_token, read_token, verify_caller
 
 PRIYA = {"customer_id": "CUST-1001", "policy_id": "POL-3001", "date_of_birth": "1990-04-12"}
 WRONG_DOB = {**PRIYA, "date_of_birth": "1990-04-13"}
@@ -129,3 +132,21 @@ def test_missing_dob_needs_info(client, seeded):
     response = client.post("/verifications", json={"customer_id": "CUST-1001", "policy_id": "POL-3001"})
     assert response.status_code == 422
     assert response.json()["missing_fields"] == ["date_of_birth"]
+
+
+def test_parallel_wrong_guesses_cannot_beat_the_lockout(clean_engine, seeded):
+    factory = sessionmaker(bind=clean_engine, expire_on_commit=False)
+    request = VerificationRequest(**WRONG_DOB)
+
+    def attempt(_):
+        with factory() as session:
+            try:
+                verify_caller(session, request)
+            except DomainError as error:
+                return error.code.value
+
+    with ThreadPoolExecutor(max_workers=10) as pool:
+        codes = list(pool.map(attempt, range(10)))
+
+    assert codes.count("VERIFICATION_FAILED") == 3
+    assert codes.count("VERIFICATION_LOCKED") == 7

@@ -20,7 +20,7 @@ services:
     build: ./backend/mock_insurance_api
     environment:
       DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/aegiscall
-      TOKEN_SECRET: ${TOKEN_SECRET:-dev-only-change-me}
+      TOKEN_SECRET: ${TOKEN_SECRET:-}
     ports:
       - "8001:8001"
     depends_on:

@@ -43,7 +43,9 @@ def read_token(token: str | None) -> str:
 
 
 def verify_caller(session: Session, request: VerificationRequest) -> Envelope:
-    customer = session.get(Customer, request.customer_id)
+    # Row lock serialises attempts per customer, so parallel guesses can't all slip
+    # past the lockout count before any of them is logged.
+    customer = session.get(Customer, request.customer_id, with_for_update=True)
     customer_id = customer.id if customer else None
 
     if customer and recent_failed_verifications(session, customer.id) >= LOCKOUT_THRESHOLD:

@@ -32,7 +32,7 @@ Tests use the `aegiscall_test` database on `localhost:5433`. Override it with `T
 | Variable | Default | Notes |
 |---|---|---|
 | `DATABASE_URL` | `postgresql+psycopg://postgres:postgres@localhost:5433/aegiscall` | `postgresql://` / `postgres://` URLs (e.g. from Supabase) are accepted as-is |
-| `TOKEN_SECRET` | `dev-only-change-me` | **Set a real secret for any shared deployment** |
+| `TOKEN_SECRET` | random per process | Set it if you run more than one worker, so they all accept the same tokens |
 | `VERIFICATION_TTL_SECONDS` | `600` | verification token lifetime |
 
 ## Using hosted Supabase

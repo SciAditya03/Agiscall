@@ -69,3 +69,4 @@ Deferred until Aditya's conversation service exists:
 
 - Breakdown task 3 — integration with Aditya's conversation service: agree the shared request/response schema (start from `docs/workflow-contract.md`), decide whether to add an `/actions` gateway.
 - Breakdown task 5b — add Aditya's service to `docker-compose.yml` and write cross-service integration tests.
+- Final review fixes: spoken IDs with spaced-out digits now resolve, verification lockout can't be raced, token secret is random unless set.
