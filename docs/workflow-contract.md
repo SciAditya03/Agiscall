@@ -38,17 +38,19 @@ How the agent should react:
 | Method & path | Header | Body | Success |
 |---|---|---|---|
 | `GET /health` | — | — | 200 `OK` |
-| `GET /customers/{id}` | — | — | 200 `CUSTOMER_FOUND`, `data.customer` (masked contact details, no DOB) |
-| `GET /policies/{id}` | — | — | 200 `POLICY_FOUND`, `data.policy` |
+| `GET /customers/{id}` | optional `X-Verification-Token` | — | 200 `CUSTOMER_FOUND`, `data.customer`: id, name, masked phone/email. With that customer's token also `bank_account` (masked) and `policy_ids`. Never DOB. |
+| `GET /policies/{id}` | optional `X-Verification-Token` | — | 200 `POLICY_FOUND`, `data.policy`. `customer_id` only with the owning customer's token. |
 | `POST /verifications` | — | `{customer_id, policy_id, date_of_birth: "YYYY-MM-DD", session_id?}` | 201 `VERIFIED`, `data.token`, `data.expires_in_seconds` |
 | `POST /refund-requests` | `X-Verification-Token`, optional `Idempotency-Key` | `{policy_id, amount, reason, session_id?}` | 201 `REFUND_CREATED` / 200 `REFUND_ALREADY_CREATED`, `data.refund` |
 | `PATCH /customers/{id}/bank-account` | `X-Verification-Token` | `{holder_name, account_number, ifsc, session_id?}` | 200 `BANK_ACCOUNT_UPDATED`, `data.bank_account` (masked) |
 
 Notes:
-- IDs are forgiving: `pol 3001`, `POL3001` and `pol-3001` all mean `POL-3001`.
+- IDs are forgiving: `pol 3001`, `POL3001`, `pol-3001` and `pol 3 0 0 1` all mean `POL-3001`. Max 50 characters.
+- `null` or a blank string for a required field counts as missing (`missing_fields`), same as leaving it out.
+- `date_of_birth` must be `YYYY-MM-DD`.
 - `account_number` must be sent as a **string** (leading zeros matter). Spaces are stripped.
 - `amount` can be a number or a string, with at most 2 decimal places, in INR.
-- Use one `Idempotency-Key` per caller intent (e.g. `<session_id>-refund-<n>`). Retries with the same key and body return the original refund.
+- Use one `Idempotency-Key` per caller intent (e.g. `<session_id>-refund-<n>`). Retries with the same key, policy and amount return the original refund (a reworded `reason` doesn't matter). The same key with a different policy or amount gets `IDEMPOTENCY_KEY_CONFLICT`.
 - Pass `session_id` so the operations log can be joined to the conversation.
 
 ## Error codes

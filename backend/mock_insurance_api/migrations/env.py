@@ -1,8 +1,6 @@
 from alembic import context
-from sqlalchemy import create_engine
-
 from app.config import get_settings
-from app.db import normalize_db_url
+from app.db import make_engine, normalize_db_url
 from app.models import Base
 
 config = context.config
@@ -21,7 +19,7 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    engine = create_engine(_url())
+    engine = make_engine(_url())
     with engine.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
         with context.begin_transaction():

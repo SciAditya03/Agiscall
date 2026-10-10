@@ -130,7 +130,8 @@ def create_refund(
         if key and (existing := _find_by_key(session, key)) is not None:
             return _replay(existing, body)
         if (open_refund := find_open_refund(session, policy.id)) is not None:
-            raise _open_refund_error(open_refund.id) from None
+            error = _open_refund_error(open_refund.id)
+            refuse(error.code, error.message, error.data)
         raise
     session.refresh(refund)
 

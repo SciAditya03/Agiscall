@@ -42,6 +42,14 @@ def read_token(token: str | None) -> str:
     return customer_id
 
 
+def verified_customer_id(token: str | None) -> str | None:
+    """The customer a token was issued for, or None if there's no valid token."""
+    try:
+        return read_token(token)
+    except DomainError:
+        return None
+
+
 def verify_caller(session: Session, request: VerificationRequest) -> Envelope:
     # Row lock serialises attempts per customer, so parallel guesses can't all slip
     # past the lockout count before any of them is logged.

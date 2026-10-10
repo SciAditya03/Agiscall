@@ -30,12 +30,20 @@ def _field_name(error: dict) -> str:
     return ".".join(loc[1:]) if len(loc) > 1 else ".".join(loc) or "body"
 
 
+def _is_missing(error: dict) -> bool:
+    """Absent, null and blank all mean "the caller hasn't given this yet"."""
+    if error.get("type") == "missing":
+        return True
+    value = error.get("input")
+    return value is None or (isinstance(value, str) and not value.strip())
+
+
 async def _validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
     missing: list[str] = []
     invalid: list[InvalidField] = []
     for error in exc.errors():
         field = _field_name(error)
-        if error.get("type") == "missing":
+        if _is_missing(error):
             if field not in missing:
                 missing.append(field)
         elif all(item.field != field for item in invalid):
@@ -55,7 +63,8 @@ async def _validation_error(request: Request, exc: RequestValidationError) -> JS
 
 async def _http_error(request: Request, exc: StarletteHTTPException) -> JSONResponse:
     code, message = _HTTP_ERRORS.get(exc.status_code, (ErrorCode.HTTP_ERROR, str(exc.detail)))
-    return to_response(Envelope(status="REJECTED", code=code.value, message=message), exc.status_code)
+    envelope = Envelope(status="REJECTED", code=code.value, message=message)
+    return to_response(envelope, exc.status_code, headers=getattr(exc, "headers", None))
 
 
 async def _unexpected_error(request: Request, exc: Exception) -> JSONResponse:

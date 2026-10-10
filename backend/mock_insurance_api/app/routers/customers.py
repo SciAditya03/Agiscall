@@ -11,8 +11,12 @@ router = APIRouter(tags=["customers"])
 
 
 @router.get("/customers/{customer_id}")
-def get_customer(customer_id: str, session: SessionDep) -> JSONResponse:
-    return to_response(customers.lookup_customer(session, customer_id))
+def get_customer(
+    customer_id: str,
+    session: SessionDep,
+    x_verification_token: Annotated[str | None, Header()] = None,
+) -> JSONResponse:
+    return to_response(customers.lookup_customer(session, customer_id, x_verification_token))
 
 
 @router.patch("/customers/{customer_id}/bank-account")
