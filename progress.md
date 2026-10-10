@@ -42,7 +42,7 @@ Deferred until Aditya's conversation service exists:
 - [x] Task 5 — customer & policy lookups
 - [x] Task 6 — caller verification
 - [x] Task 7 — refund requests
-- [ ] Task 8 — bank-account update
+- [x] Task 8 — bank-account update
 - [ ] Task 9 — demo scenarios + contract docs
 - [ ] Task 10 — Docker
 
@@ -61,3 +61,4 @@ Deferred until Aditya's conversation service exists:
 - GET /customers/{id} and GET /policies/{id}; contact details masked, DOB never returned, loose IDs like "pol 3001" resolve.
 - POST /verifications: checks customer + policy + DOB, issues 10-min signed token; 3 failures in 15 min locks the customer.
 - POST /refund-requests: token + scope checks, active-policy / premium cap / one-open-refund rules, Idempotency-Key replay and conflict.
+- PATCH /customers/{id}/bank-account: token + scope, holder name must match, same-account check; history kept as masked old/new in operations.
