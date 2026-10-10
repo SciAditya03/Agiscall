@@ -40,7 +40,7 @@ Deferred until Aditya's conversation service exists:
 - [x] Task 3 — models, migration, seed data
 - [x] Task 4 — response envelope + error handling
 - [x] Task 5 — customer & policy lookups
-- [ ] Task 6 — caller verification
+- [x] Task 6 — caller verification
 - [ ] Task 7 — refund requests
 - [ ] Task 8 — bank-account update
 - [ ] Task 9 — demo scenarios + contract docs
@@ -59,3 +59,4 @@ Deferred until Aditya's conversation service exists:
 - Four tables + Alembic migration, seed data for 5 demo customers / 6 policies, DB-level one-open-refund rule.
 - Envelope + exception handlers: validation → NEEDS_INFO, rules → REJECTED, crashes → FAILED, unknown routes still enveloped.
 - GET /customers/{id} and GET /policies/{id}; contact details masked, DOB never returned, loose IDs like "pol 3001" resolve.
+- POST /verifications: checks customer + policy + DOB, issues 10-min signed token; 3 failures in 15 min locks the customer.

@@ -66,3 +66,17 @@ def client(clean_engine: Engine) -> Iterator[TestClient]:
     app.dependency_overrides[get_session] = override_get_session
     with TestClient(app) as test_client:
         yield test_client
+
+
+@pytest.fixture
+def verify(client: TestClient):
+    """Verify a caller through the API and return the token."""
+
+    def _verify(customer_id: str = "CUST-1001", policy_id: str = "POL-3001", dob: str = "1990-04-12") -> str:
+        response = client.post(
+            "/verifications", json={"customer_id": customer_id, "policy_id": policy_id, "date_of_birth": dob}
+        )
+        assert response.status_code == 201, response.text
+        return response.json()["data"]["token"]
+
+    return _verify
