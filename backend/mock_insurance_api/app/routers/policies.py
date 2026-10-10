@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Header
 from fastapi.responses import JSONResponse
 
 from app.db import SessionDep
@@ -9,5 +11,9 @@ router = APIRouter(tags=["policies"])
 
 
 @router.get("/policies/{policy_id}")
-def get_policy(policy_id: str, session: SessionDep) -> JSONResponse:
-    return to_response(policies.lookup_policy(session, policy_id))
+def get_policy(
+    policy_id: str,
+    session: SessionDep,
+    x_verification_token: Annotated[str | None, Header()] = None,
+) -> JSONResponse:
+    return to_response(policies.lookup_policy(session, policy_id, x_verification_token))
