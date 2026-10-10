@@ -32,8 +32,8 @@ Deferred until Aditya's conversation service exists:
 - [x] Read Breakdown.md, agreed scope
 - [x] Design: service layout + data model
 - [x] Design: API contract
-- [ ] Design: business rules, testing, Docker, demo scenarios
-- [ ] Written spec
+- [x] Design: business rules, testing, Docker, demo scenarios
+- [x] Written spec — `docs/superpowers/specs/2026-10-10-workflow-backend-design.md` (awaiting review)
 - [ ] Implementation plan
 - [ ] Implementation
 
@@ -42,3 +42,5 @@ Deferred until Aditya's conversation service exists:
 ### 2026-10-10
 - Went through Breakdown.md and split my tasks into "independent" vs "needs Aditya".
 - Settled service layout, data model and API contract.
+- Settled business rules (verification lockout, refund + bank-account rules), test setup, Docker and the 7 demo scenarios.
+- Wrote the design spec.
