@@ -17,9 +17,14 @@ def normalize_db_url(url: str) -> str:
     return url
 
 
+def make_engine(url: str) -> Engine:
+    # prepare_threshold=None: Supabase's transaction pooler can't hold server-side prepared statements.
+    return create_engine(normalize_db_url(url), pool_pre_ping=True, connect_args={"prepare_threshold": None})
+
+
 @lru_cache
 def get_engine() -> Engine:
-    return create_engine(normalize_db_url(get_settings().database_url), pool_pre_ping=True)
+    return make_engine(get_settings().database_url)
 
 
 def get_session() -> Iterator[Session]:

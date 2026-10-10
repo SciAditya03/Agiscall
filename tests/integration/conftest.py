@@ -11,10 +11,10 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from fastapi.testclient import TestClient
-from sqlalchemy import Engine, create_engine, text
+from sqlalchemy import Engine, text
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.db import get_session, normalize_db_url
+from app.db import get_session, make_engine
 from app.main import create_app
 from seed.seed import seed
 
@@ -30,7 +30,7 @@ def engine() -> Iterator[Engine]:
     config.set_main_option("sqlalchemy.url", TEST_DATABASE_URL)
     command.downgrade(config, "base")  # start from scratch so edited migrations are picked up
     command.upgrade(config, "head")
-    engine = create_engine(normalize_db_url(TEST_DATABASE_URL))
+    engine = make_engine(TEST_DATABASE_URL)
     yield engine
     engine.dispose()
 

@@ -52,3 +52,9 @@ def test_only_one_open_refund_per_policy_at_db_level(seeded):
                                  amount=100, reason="test", status="SUBMITTED"))
     with pytest.raises(IntegrityError):
         seeded.commit()
+
+
+def test_connections_skip_prepared_statements(engine):
+    # Supabase's transaction pooler (port 6543) can't handle server-side prepared statements.
+    with engine.connect() as conn:
+        assert conn.connection.dbapi_connection.prepare_threshold is None
