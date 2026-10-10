@@ -33,9 +33,18 @@ Deferred until Aditya's conversation service exists:
 - [x] Design: service layout + data model
 - [x] Design: API contract
 - [x] Design: business rules, testing, Docker, demo scenarios
-- [x] Written spec — `docs/superpowers/specs/2026-10-10-workflow-backend-design.md` (awaiting review)
-- [ ] Implementation plan
-- [ ] Implementation
+- [x] Written design spec
+- [x] Implementation plan (10 tasks, TDD)
+- [x] Task 1 — service skeleton, config, local Postgres
+- [x] Task 2 — validation + workflow definitions
+- [x] Task 3 — models, migration, seed data
+- [x] Task 4 — response envelope + error handling
+- [x] Task 5 — customer & policy lookups
+- [x] Task 6 — caller verification
+- [x] Task 7 — refund requests
+- [x] Task 8 — bank-account update
+- [x] Task 9 — demo scenarios + contract docs
+- [x] Task 10 — Docker
 
 ## Log
 
@@ -44,4 +53,20 @@ Deferred until Aditya's conversation service exists:
 - Settled service layout, data model and API contract.
 - Settled business rules (verification lockout, refund + bank-account rules), test setup, Docker and the 7 demo scenarios.
 - Wrote the design spec.
-- Wrote the implementation plan (10 tasks, TDD) — `docs/superpowers/plans/2026-10-10-workflow-backend.md`.
+- Wrote the implementation plan (10 tasks, TDD).
+- Set up the FastAPI project with uv, settings, DB session and a local Postgres (port 5433) in compose.
+- Validation rules (amount, IFSC, account no., IDs) and the three supported workflows.
+- Four tables + Alembic migration, seed data for 5 demo customers / 6 policies, DB-level one-open-refund rule.
+- Envelope + exception handlers: validation → NEEDS_INFO, rules → REJECTED, crashes → FAILED, unknown routes still enveloped.
+- GET /customers/{id} and GET /policies/{id}; contact details masked, DOB never returned, loose IDs like "pol 3001" resolve.
+- POST /verifications: checks customer + policy + DOB, issues 10-min signed token; 3 failures in 15 min locks the customer.
+- POST /refund-requests: token + scope checks, active-policy / premium cap / one-open-refund rules, Idempotency-Key replay and conflict.
+- PATCH /customers/{id}/bank-account: token + scope, holder name must match, same-account check; history kept as masked old/new in operations.
+- Seven demo scenarios as tests + curl walkthrough; contract doc ready for Aditya.
+- Dockerfile + compose service with health check; README covers local, tests and Supabase. Smoke-tested health, policy lookup, verify and refund against the container.
+
+## Next
+
+- Breakdown task 3 — integration with Aditya's conversation service: agree the shared request/response schema (start from `docs/workflow-contract.md`), decide whether to add an `/actions` gateway.
+- Breakdown task 5b — add Aditya's service to `docker-compose.yml` and write cross-service integration tests.
+- Final review fixes: spoken IDs with spaced-out digits now resolve, verification lockout can't be raced, token secret is random unless set.
