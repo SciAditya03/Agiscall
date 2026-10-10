@@ -3,7 +3,6 @@
 Person 2's slice of AegisCall Phase 1: a mock insurance backend the voice agent calls to look
 up customers and policies, verify callers, raise refund requests and change bank details.
 
-- Design: `docs/superpowers/specs/2026-10-10-workflow-backend-design.md`
 - API contract for the conversation service: `docs/workflow-contract.md`
 - Demo walkthrough: `docs/demo-scenarios.md`
 
