@@ -34,8 +34,17 @@ Deferred until Aditya's conversation service exists:
 - [x] Design: API contract
 - [x] Design: business rules, testing, Docker, demo scenarios
 - [x] Written spec — `docs/superpowers/specs/2026-10-10-workflow-backend-design.md` (awaiting review)
-- [ ] Implementation plan
-- [ ] Implementation
+- [x] Implementation plan — docs/superpowers/plans/2026-10-10-workflow-backend.md
+- [x] Task 1 — service skeleton, config, local Postgres
+- [ ] Task 2 — validation + workflow definitions
+- [ ] Task 3 — models, migration, seed data
+- [ ] Task 4 — response envelope + error handling
+- [ ] Task 5 — customer & policy lookups
+- [ ] Task 6 — caller verification
+- [ ] Task 7 — refund requests
+- [ ] Task 8 — bank-account update
+- [ ] Task 9 — demo scenarios + contract docs
+- [ ] Task 10 — Docker
 
 ## Log
 
@@ -45,3 +54,4 @@ Deferred until Aditya's conversation service exists:
 - Settled business rules (verification lockout, refund + bank-account rules), test setup, Docker and the 7 demo scenarios.
 - Wrote the design spec.
 - Wrote the implementation plan (10 tasks, TDD) — `docs/superpowers/plans/2026-10-10-workflow-backend.md`.
+- Set up the FastAPI project with uv, settings, DB session and a local Postgres (port 5433) in compose.
