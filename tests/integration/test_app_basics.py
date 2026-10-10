@@ -2,6 +2,7 @@ from decimal import Decimal
 
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from app.errors import DomainError, ErrorCode
 from app.main import create_app
@@ -129,3 +130,27 @@ def test_request_models_normalize_values():
 def test_workflow_required_fields_match_request_models(workflow_key, model):
     required = [name for name, field in model.model_fields.items() if field.is_required()]
     assert tuple(required) == WORKFLOWS[workflow_key].required_fields
+
+
+def test_null_or_blank_required_fields_count_as_missing(probe_client):
+    # LLM tool calls often send null or "" for "the caller hasn't said yet".
+    body = probe_client.post("/_probe/refund", json={"policy_id": "", "amount": None, "reason": "   "}).json()
+    assert body["code"] == "MISSING_FIELDS"
+    assert body["missing_fields"] == ["policy_id", "amount", "reason"]
+    assert body["invalid_fields"] == []
+
+
+def test_wrong_method_keeps_allow_header(probe_client):
+    assert "GET" in probe_client.delete("/health").headers["allow"]
+
+
+def test_overlong_ids_are_rejected():
+    with pytest.raises(ValidationError):
+        VerificationRequest(customer_id="C" * 51, policy_id="POL-3001", date_of_birth="1990-04-12")
+    with pytest.raises(ValidationError):
+        RefundCreate(policy_id="P" * 51, amount=1, reason="abc")
+
+
+def test_badly_formatted_dob_gets_a_readable_reason():
+    with pytest.raises(ValidationError, match="Date of birth must look like 1990-04-12"):
+        VerificationRequest(customer_id="CUST-1001", policy_id="POL-3001", date_of_birth="1990-4-12")

@@ -1,6 +1,7 @@
 from sqlalchemy import func, select
 
 from app.models import Operation, RefundRequest
+from app.services import refunds as refunds_service
 
 REFUND = {"policy_id": "POL-3001", "amount": 1200, "reason": "Charged twice for March premium"}
 
@@ -137,3 +138,29 @@ def test_missing_amount_needs_info(client, seeded, verify):
     response = _post(client, verify(), {"policy_id": "POL-3001", "reason": "Charged twice"})
     assert response.status_code == 422
     assert response.json()["missing_fields"] == ["amount"]
+
+
+def test_refund_rejected_by_the_race_guard_is_still_logged(client, seeded, verify, monkeypatch):
+    token = verify()
+    first = _post(client, token).json()["data"]["refund"]["id"]
+
+    # Simulate losing the race: the early "already open?" check misses the other refund,
+    # so the insert trips the one-open-refund index instead.
+    real_find = refunds_service.find_open_refund
+    calls = []
+
+    def find_after_race(session, policy_id):
+        calls.append(policy_id)
+        return None if len(calls) == 1 else real_find(session, policy_id)
+
+    monkeypatch.setattr(refunds_service, "find_open_refund", find_after_race)
+    response = _post(client, token, {**REFUND, "amount": 300})
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "REFUND_ALREADY_OPEN"
+    assert response.json()["data"] == {"open_refund_id": first}
+    seeded.expire_all()
+    operation = seeded.scalars(
+        select(Operation).where(Operation.code == "REFUND_ALREADY_OPEN")
+    ).one()
+    assert (operation.operation_type, operation.status) == ("CREATE_REFUND", "REJECTED")

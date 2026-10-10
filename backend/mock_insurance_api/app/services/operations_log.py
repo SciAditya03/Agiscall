@@ -2,7 +2,7 @@
 from datetime import timedelta
 from typing import Any, NoReturn
 
-from sqlalchemy import func, select
+from sqlalchemy import DateTime, func, literal, select
 from sqlalchemy.orm import Session
 
 from app.errors import DomainError, ErrorCode
@@ -63,6 +63,16 @@ def reject(
 
 
 def recent_failed_verifications(session: Session, customer_id: str) -> int:
+    """Failed attempts in the lockout window since the customer last verified successfully."""
+    last_success = (
+        select(func.max(Operation.created_at))
+        .where(
+            Operation.customer_id == customer_id,
+            Operation.operation_type == VERIFY,
+            Operation.code == "VERIFIED",
+        )
+        .scalar_subquery()
+    )
     stmt = (
         select(func.count())
         .select_from(Operation)
@@ -71,6 +81,7 @@ def recent_failed_verifications(session: Session, customer_id: str) -> int:
             Operation.operation_type == VERIFY,
             Operation.code == ErrorCode.VERIFICATION_FAILED.value,
             Operation.created_at >= func.now() - LOCKOUT_WINDOW,
+            Operation.created_at > func.coalesce(last_success, literal("-infinity").cast(DateTime(timezone=True))),
         )
     )
     return session.scalar(stmt) or 0

@@ -150,3 +150,11 @@ def test_parallel_wrong_guesses_cannot_beat_the_lockout(clean_engine, seeded):
 
     assert codes.count("VERIFICATION_FAILED") == 3
     assert codes.count("VERIFICATION_LOCKED") == 7
+
+
+def test_successful_verification_resets_the_failure_count(client, seeded):
+    for _ in range(2):
+        client.post("/verifications", json=WRONG_DOB)
+    assert client.post("/verifications", json=PRIYA).status_code == 201
+    client.post("/verifications", json=WRONG_DOB)  # a typo when re-verifying later
+    assert client.post("/verifications", json=PRIYA).status_code == 201

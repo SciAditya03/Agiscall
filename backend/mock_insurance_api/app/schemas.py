@@ -1,6 +1,6 @@
 from datetime import date
 from decimal import Decimal
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
@@ -27,13 +27,17 @@ class Envelope(BaseModel):
     invalid_fields: list[InvalidField] = Field(default_factory=list)
 
 
-def to_response(envelope: Envelope, http_status: int = 200) -> JSONResponse:
-    return JSONResponse(status_code=http_status, content=jsonable_encoder(envelope))
+def to_response(envelope: Envelope, http_status: int = 200, headers: dict[str, str] | None = None) -> JSONResponse:
+    return JSONResponse(status_code=http_status, content=jsonable_encoder(envelope), headers=headers)
+
+
+# Real IDs are ~9 chars; the cap stops junk from being written to the operations log.
+IdField = Annotated[str, Field(max_length=50)]
 
 
 class VerificationRequest(BaseModel):
-    customer_id: str
-    policy_id: str
+    customer_id: IdField
+    policy_id: IdField
     date_of_birth: date
     session_id: str | None = Field(default=None, max_length=200)
 
@@ -42,9 +46,19 @@ class VerificationRequest(BaseModel):
     def _normalize_ids(cls, value: str) -> str:
         return validation.normalize_id(value)
 
+    @field_validator("date_of_birth", mode="before")
+    @classmethod
+    def _parse_dob(cls, value: object) -> object:
+        if isinstance(value, str) and value.strip():
+            try:
+                return date.fromisoformat(value.strip())
+            except ValueError:
+                raise ValueError("Date of birth must look like 1990-04-12") from None
+        return value
+
 
 class RefundCreate(BaseModel):
-    policy_id: str
+    policy_id: IdField
     amount: Decimal
     reason: str
     session_id: str | None = Field(default=None, max_length=200)

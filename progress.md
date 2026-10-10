@@ -64,6 +64,7 @@ Deferred until Aditya's conversation service exists:
 - PATCH /customers/{id}/bank-account: token + scope, holder name must match, same-account check; history kept as masked old/new in operations.
 - Seven demo scenarios as tests + curl walkthrough; contract doc ready for Aditya.
 - Dockerfile + compose service with health check; README covers local, tests and Supabase. Smoke-tested health, policy lookup, verify and refund against the container.
+- Review follow-ups: lookups only show policy numbers / bank details / owner ID to a verified caller; null or blank fields count as missing; failure count resets after a successful verify; race-path refund rejections logged; ID length cap; readable DOB error; 405 keeps Allow header; Docker image built from uv.lock; prepared statements off for Supabase's pooler.
 
 ## Next
 
