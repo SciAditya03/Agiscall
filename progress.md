@@ -44,3 +44,4 @@ Deferred until Aditya's conversation service exists:
 - Settled service layout, data model and API contract.
 - Settled business rules (verification lockout, refund + bank-account rules), test setup, Docker and the 7 demo scenarios.
 - Wrote the design spec.
+- Wrote the implementation plan (10 tasks, TDD) — `docs/superpowers/plans/2026-10-10-workflow-backend.md`.
