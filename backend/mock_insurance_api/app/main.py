@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.errors import DomainError, ErrorCode
+from app.routers import customers, policies
 from app.schemas import Envelope, InvalidField, to_response
 
 logger = logging.getLogger(__name__)
@@ -78,6 +79,8 @@ def create_app() -> FastAPI:
     def health() -> JSONResponse:
         return to_response(Envelope(status="SUCCESS", code="OK", message="Service is healthy."))
 
+    for router in (customers.router, policies.router):
+        app.include_router(router)
     return app
 
 

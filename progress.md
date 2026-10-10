@@ -39,7 +39,7 @@ Deferred until Aditya's conversation service exists:
 - [x] Task 2 — validation + workflow definitions
 - [x] Task 3 — models, migration, seed data
 - [x] Task 4 — response envelope + error handling
-- [ ] Task 5 — customer & policy lookups
+- [x] Task 5 — customer & policy lookups
 - [ ] Task 6 — caller verification
 - [ ] Task 7 — refund requests
 - [ ] Task 8 — bank-account update
@@ -58,3 +58,4 @@ Deferred until Aditya's conversation service exists:
 - Validation rules (amount, IFSC, account no., IDs) and the three supported workflows.
 - Four tables + Alembic migration, seed data for 5 demo customers / 6 policies, DB-level one-open-refund rule.
 - Envelope + exception handlers: validation → NEEDS_INFO, rules → REJECTED, crashes → FAILED, unknown routes still enveloped.
+- GET /customers/{id} and GET /policies/{id}; contact details masked, DOB never returned, loose IDs like "pol 3001" resolve.

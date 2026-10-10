@@ -10,10 +10,12 @@ from pathlib import Path
 import pytest
 from alembic import command
 from alembic.config import Config
+from fastapi.testclient import TestClient
 from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.db import normalize_db_url
+from app.db import get_session, normalize_db_url
+from app.main import create_app
 from seed.seed import seed
 
 SERVICE_DIR = Path(__file__).resolve().parents[2] / "backend" / "mock_insurance_api"
@@ -50,3 +52,17 @@ def db(clean_engine: Engine) -> Iterator[Session]:
 def seeded(db: Session) -> Session:
     seed(db)
     return db
+
+
+@pytest.fixture
+def client(clean_engine: Engine) -> Iterator[TestClient]:
+    app = create_app()
+    factory = sessionmaker(bind=clean_engine, expire_on_commit=False)
+
+    def override_get_session() -> Iterator[Session]:
+        with factory() as session:
+            yield session
+
+    app.dependency_overrides[get_session] = override_get_session
+    with TestClient(app) as test_client:
+        yield test_client
