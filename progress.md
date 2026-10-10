@@ -44,7 +44,7 @@ Deferred until Aditya's conversation service exists:
 - [x] Task 7 — refund requests
 - [x] Task 8 — bank-account update
 - [x] Task 9 — demo scenarios + contract docs
-- [ ] Task 10 — Docker
+- [x] Task 10 — Docker
 
 ## Log
 
@@ -63,3 +63,9 @@ Deferred until Aditya's conversation service exists:
 - POST /refund-requests: token + scope checks, active-policy / premium cap / one-open-refund rules, Idempotency-Key replay and conflict.
 - PATCH /customers/{id}/bank-account: token + scope, holder name must match, same-account check; history kept as masked old/new in operations.
 - Seven demo scenarios as tests + curl walkthrough; contract doc ready for Aditya.
+- Dockerfile + compose service with health check; README covers local, tests and Supabase. Smoke-tested health, policy lookup, verify and refund against the container.
+
+## Next
+
+- Breakdown task 3 — integration with Aditya's conversation service: agree the shared request/response schema (start from `docs/workflow-contract.md`), decide whether to add an `/actions` gateway.
+- Breakdown task 5b — add Aditya's service to `docker-compose.yml` and write cross-service integration tests.

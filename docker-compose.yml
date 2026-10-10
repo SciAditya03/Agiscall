@@ -16,5 +16,21 @@ services:
       timeout: 3s
       retries: 10
 
+  workflow-api:
+    build: ./backend/mock_insurance_api
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/aegiscall
+      TOKEN_SECRET: ${TOKEN_SECRET:-dev-only-change-me}
+    ports:
+      - "8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
 volumes:
   pgdata:
