@@ -38,7 +38,7 @@ Deferred until Aditya's conversation service exists:
 - [x] Task 1 — service skeleton, config, local Postgres
 - [x] Task 2 — validation + workflow definitions
 - [x] Task 3 — models, migration, seed data
-- [ ] Task 4 — response envelope + error handling
+- [x] Task 4 — response envelope + error handling
 - [ ] Task 5 — customer & policy lookups
 - [ ] Task 6 — caller verification
 - [ ] Task 7 — refund requests
@@ -57,3 +57,4 @@ Deferred until Aditya's conversation service exists:
 - Set up the FastAPI project with uv, settings, DB session and a local Postgres (port 5433) in compose.
 - Validation rules (amount, IFSC, account no., IDs) and the three supported workflows.
 - Four tables + Alembic migration, seed data for 5 demo customers / 6 policies, DB-level one-open-refund rule.
+- Envelope + exception handlers: validation → NEEDS_INFO, rules → REJECTED, crashes → FAILED, unknown routes still enveloped.
