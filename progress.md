@@ -37,7 +37,7 @@ Deferred until Aditya's conversation service exists:
 - [x] Implementation plan — docs/superpowers/plans/2026-10-10-workflow-backend.md
 - [x] Task 1 — service skeleton, config, local Postgres
 - [x] Task 2 — validation + workflow definitions
-- [ ] Task 3 — models, migration, seed data
+- [x] Task 3 — models, migration, seed data
 - [ ] Task 4 — response envelope + error handling
 - [ ] Task 5 — customer & policy lookups
 - [ ] Task 6 — caller verification
@@ -56,3 +56,4 @@ Deferred until Aditya's conversation service exists:
 - Wrote the implementation plan (10 tasks, TDD) — `docs/superpowers/plans/2026-10-10-workflow-backend.md`.
 - Set up the FastAPI project with uv, settings, DB session and a local Postgres (port 5433) in compose.
 - Validation rules (amount, IFSC, account no., IDs) and the three supported workflows.
+- Four tables + Alembic migration, seed data for 5 demo customers / 6 policies, DB-level one-open-refund rule.
